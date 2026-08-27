@@ -13,8 +13,8 @@ TARGET_EMAIL = "rayyan@gmail.com"
 TARGET_PASSWORD = "Rayyan786687##"  # <-- Apna secret password daalein
 
 # OpenRouter API Setup
-OPENROUTER_API_KEY = "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"   # <-- Yahan apni OpenRouter API Key paste karein
-MODEL_NAME = "poolside/laguna-s-2.1:free"       # <-- Ya apna pasandida model name daalein
+OPENROUTER_API_KEY = "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"   # <-- Yahan apni OpenRouter API Key paste karein
+MODEL_NAME = "nvidia/nemotron-3.5-lightning:free"       # <-- Ya apna pasandida model name daalein
 
 if not st.session_state.logged_in:
     st.title("🔐 Login to Access Chatbot")
