@@ -13,9 +13,8 @@ TARGET_EMAIL = "rayyan@gmail.com"
 TARGET_PASSWORD = "(Rayyan.786687)"
 
 # OpenRouter Setup (Old Config)
-OPENROUTER_API_KEY = "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"  # <-- Apni OpenRouter Key yahan daalein
-MODEL_NAME = "meta-llama/llama-3.3-70b-instruct:free"
-
+OPENROUTER_API_KEY = "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"  # <-- Apni OpenRouter Key yahan daalein
+MODEL_NAME = "qwen/qwen-2.5-coder-32b-instruct:free"
 if not st.session_state.logged_in:
     st.title("🔐 Login to Access Chatbot")
     
