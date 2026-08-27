@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
+import time
 
-# Session state initialize karein
+# Session state initialize
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -10,10 +11,10 @@ if "messages" not in st.session_state:
 
 # Credentials
 TARGET_EMAIL = "rayyan@gmail.com"
-TARGET_PASSWORD = "(Rayyan.786687)"  # <-- Apna secret password daalein
+TARGET_PASSWORD = "(Rayyan.786687)"
 
 # OpenRouter API Setup
-OPENROUTER_API_KEY = "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"   # <-- Yahan apni OpenRouter API Key paste karein
+OPENROUTER_API_KEY = "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"  # <-- Apni API Key yahan paste karein
 
 if not st.session_state.logged_in:
     st.title("🔐 Login to Access Chatbot")
@@ -41,18 +42,18 @@ else:
     st.title("🤖 Rayyan Agentic AI Assistant")
     st.write("Welcome! Ask me anything below.")
 
-    # Previous Chat History Show Karna
+    # Chat History
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # User Input Box
+    # User Input
     if user_query := st.chat_input("Ask a question..."):
         st.session_state.messages.append({"role": "user", "content": user_query})
         with st.chat_message("user"):
             st.markdown(user_query)
 
-        # AI API Call with Automatic Fallback Models (No Errors for Clients)
+        # AI API Call
         with st.chat_message("assistant"):
             with st.spinner("AI reply soch raha hai..."):
                 FREE_MODELS = [
@@ -66,8 +67,11 @@ else:
                 headers = {
                     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
                     "Content-Type": "application/json",
+                    "HTTP-Referer": "https://streamlit.io",
+                    "X-Title": "Rayyan AI Assistant"
                 }
 
+                # High Reliability Request Loop
                 for model in FREE_MODELS:
                     try:
                         payload = {
@@ -81,11 +85,14 @@ else:
                             "https://openrouter.ai/api/v1/chat/completions",
                             headers=headers,
                             json=payload,
-                            timeout=15
+                            timeout=30  # Timeout badha diya hai taakay slow responses na cut hon
                         )
                         if response.status_code == 200:
-                            ai_reply = response.json()["choices"][0]["message"]["content"]
-                            break
+                            data = response.json()
+                            if "choices" in data and len(data["choices"]) > 0:
+                                ai_reply = data["choices"][0]["message"]["content"]
+                                if ai_reply:
+                                    break
                     except Exception:
                         continue
 
@@ -93,4 +100,4 @@ else:
                     st.markdown(ai_reply)
                     st.session_state.messages.append({"role": "assistant", "content": ai_reply})
                 else:
-                    st.error("Server busy hai. Kripya thodi der baad dobara try karein.")
+                    st.warning("Server par traffic zyaada hai, kripya apna sawal dobara bhejain.")
