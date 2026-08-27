@@ -1,20 +1,20 @@
 import streamlit as st
 import requests
-import time
 
-# Session state initialize
+# Session state setup
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Credentials
+# Login Credentials
 TARGET_EMAIL = "rayyan@gmail.com"
 TARGET_PASSWORD = "(Rayyan.786687)"
 
-# OpenRouter API Setup
-OPENROUTER_API_KEY = "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"  # <-- Apni API Key yahan paste karein
+# OpenRouter Setup (Old Config)
+OPENROUTER_API_KEY = "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"  # <-- Apni OpenRouter Key yahan daalein
+MODEL_NAME = "google/gemini-2.0-flash-exp:free"
 
 if not st.session_state.logged_in:
     st.title("🔐 Login to Access Chatbot")
@@ -42,7 +42,7 @@ else:
     st.title("🤖 Rayyan Agentic AI Assistant")
     st.write("Welcome! Ask me anything below.")
 
-    # Chat History
+    # Show Chat History
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
@@ -53,51 +53,34 @@ else:
         with st.chat_message("user"):
             st.markdown(user_query)
 
-        # AI API Call
+        # AI Call
         with st.chat_message("assistant"):
             with st.spinner("AI reply soch raha hai..."):
-                FREE_MODELS = [
-                    "google/gemini-2.0-flash-exp:free",
-                    "meta-llama/llama-3.3-70b-instruct:free",
-                    "qwen/qwen-2.5-coder-32b-instruct:free",
-                    "deepseek/deepseek-r1:free"
-                ]
-                
-                ai_reply = None
-                headers = {
-                    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": "https://streamlit.io",
-                    "X-Title": "Rayyan AI Assistant"
-                }
-
-                # High Reliability Request Loop
-                for model in FREE_MODELS:
-                    try:
-                        payload = {
-                            "model": model,
-                            "messages": [
-                                {"role": m["role"], "content": m["content"]}
-                                for m in st.session_state.messages
-                            ]
-                        }
-                        response = requests.post(
-                            "https://openrouter.ai/api/v1/chat/completions",
-                            headers=headers,
-                            json=payload,
-                            timeout=30  # Timeout badha diya hai taakay slow responses na cut hon
-                        )
-                        if response.status_code == 200:
-                            data = response.json()
-                            if "choices" in data and len(data["choices"]) > 0:
-                                ai_reply = data["choices"][0]["message"]["content"]
-                                if ai_reply:
-                                    break
-                    except Exception:
-                        continue
-
-                if ai_reply:
-                    st.markdown(ai_reply)
-                    st.session_state.messages.append({"role": "assistant", "content": ai_reply})
-                else:
-                    st.warning("Server par traffic zyaada hai, kripya apna sawal dobara bhejain.")
+                try:
+                    headers = {
+                        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                        "Content-Type": "application/json"
+                    }
+                    payload = {
+                        "model": MODEL_NAME,
+                        "messages": [
+                            {"role": m["role"], "content": m["content"]}
+                            for m in st.session_state.messages
+                        ]
+                    }
+                    response = requests.post(
+                        "https://openrouter.ai/api/v1/chat/completions",
+                        headers=headers,
+                        json=payload,
+                        timeout=30
+                    )
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        ai_reply = data["choices"][0]["message"]["content"]
+                        st.markdown(ai_reply)
+                        st.session_state.messages.append({"role": "assistant", "content": ai_reply})
+                    else:
+                        st.error(f"API Error: {response.status_code} - Check key or credits.")
+                except Exception as e:
+                    st.error("Connection timed out. Please try again.")
