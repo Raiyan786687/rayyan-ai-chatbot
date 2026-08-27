@@ -14,7 +14,7 @@ TARGET_PASSWORD = "(Rayyan.786687)"
 
 # OpenRouter Setup (Old Config)
 OPENROUTER_API_KEY = "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"  # <-- Apni OpenRouter Key yahan daalein
-MODEL_NAME = "google/gemini-2.0-flash-exp:free"
+MODEL_NAME = "meta-llama/llama-3.3-70b-instruct:free"
 
 if not st.session_state.logged_in:
     st.title("🔐 Login to Access Chatbot")
