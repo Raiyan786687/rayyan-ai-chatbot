@@ -10,11 +10,10 @@ if "messages" not in st.session_state:
 
 # Credentials
 TARGET_EMAIL = "rayyan@gmail.com"
-TARGET_PASSWORD = "Rayyan786687##"  # <-- Apna secret password daalein
+TARGET_PASSWORD = "(Rayyan.786687)"  # <-- Apna secret password daalein
 
 # OpenRouter API Setup
-OPENROUTER_API_KEY = "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"   # <-- Yahan apni OpenRouter API Key paste karein
-MODEL_NAME = "google/gemini-2.0-flash-exp:free"       # <-- Ya apna pasandida model name daalein
+OPENROUTER_API_KEY = "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"   # <-- Yahan apni OpenRouter API Key paste karein
 
 if not st.session_state.logged_in:
     st.title("🔐 Login to Access Chatbot")
@@ -53,34 +52,45 @@ else:
         with st.chat_message("user"):
             st.markdown(user_query)
 
-        # AI API Call
+        # AI API Call with Automatic Fallback Models (No Errors for Clients)
         with st.chat_message("assistant"):
             with st.spinner("AI reply soch raha hai..."):
-                try:
-                    headers = {
-                        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                        "Content-Type": "application/json",
-                    }
-                    payload = {
-                        "model": MODEL_NAME,
-                        "messages": [
-                            {"role": m["role"], "content": m["content"]}
-                            for m in st.session_state.messages
-                        ]
-                    }
-                    
-                    response = requests.post(
-                        "https://openrouter.ai/api/v1/chat/completions",
-                        headers=headers,
-                        json=payload,
-                        timeout=30
-                    )
-                    
-                    if response.status_code == 200:
-                        ai_reply = response.json()["choices"][0]["message"]["content"]
-                        st.markdown(ai_reply)
-                        st.session_state.messages.append({"role": "assistant", "content": ai_reply})
-                    else:
-                        st.error(f"API Error: {response.status_code} - Check key or credits.")
-                except Exception as e:
-                    st.error("Connection error. Code ya network check karein.")
+                FREE_MODELS = [
+                    "google/gemini-2.0-flash-exp:free",
+                    "meta-llama/llama-3.3-70b-instruct:free",
+                    "qwen/qwen-2.5-coder-32b-instruct:free",
+                    "deepseek/deepseek-r1:free"
+                ]
+                
+                ai_reply = None
+                headers = {
+                    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                    "Content-Type": "application/json",
+                }
+
+                for model in FREE_MODELS:
+                    try:
+                        payload = {
+                            "model": model,
+                            "messages": [
+                                {"role": m["role"], "content": m["content"]}
+                                for m in st.session_state.messages
+                            ]
+                        }
+                        response = requests.post(
+                            "https://openrouter.ai/api/v1/chat/completions",
+                            headers=headers,
+                            json=payload,
+                            timeout=15
+                        )
+                        if response.status_code == 200:
+                            ai_reply = response.json()["choices"][0]["message"]["content"]
+                            break
+                    except Exception:
+                        continue
+
+                if ai_reply:
+                    st.markdown(ai_reply)
+                    st.session_state.messages.append({"role": "assistant", "content": ai_reply})
+                else:
+                    st.error("Server busy hai. Kripya thodi der baad dobara try karein.")
