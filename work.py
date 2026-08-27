@@ -14,7 +14,7 @@ TARGET_PASSWORD = "Rayyan786687##"  # <-- Apna secret password daalein
 
 # OpenRouter API Setup
 OPENROUTER_API_KEY = "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"   # <-- Yahan apni OpenRouter API Key paste karein
-MODEL_NAME = "nvidia/nemotron-3.5-lightning:free"       # <-- Ya apna pasandida model name daalein
+MODEL_NAME = "meta-llama/llama-3.1-8b-instruct:free"       # <-- Ya apna pasandida model name daalein
 
 if not st.session_state.logged_in:
     st.title("🔐 Login to Access Chatbot")
