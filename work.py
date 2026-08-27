@@ -14,7 +14,7 @@ TARGET_PASSWORD = "(Rayyan.786687)"
 
 # OpenRouter Setup (Old Config)
 OPENROUTER_API_KEY = "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"  # <-- Apni OpenRouter Key yahan daalein
-MODEL_NAME = "qwen/qwen-2.5-coder-32b-instruct:free"
+MODEL_NAME = "poolside/laguna-s-2.1:free"
 if not st.session_state.logged_in:
     st.title("🔐 Login to Access Chatbot")
     
